@@ -35,6 +35,7 @@
 #define MAX_COUNT 1
 #define PI 3.14159265
 #define MAXCNT 719  // maximum count for QEI encoders before interrupt, 720 counts per revolution
+#define MAX_ISUM 180
 
 // define some variables
 
@@ -377,11 +378,11 @@ int main(void) {
     double u_out[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
     int Nr = 5, Ny = 5, Nu = 5;
     double AD_scale = 0.1688;
-    double kp = 5.0;
+    double kp = 0.0;
     double reference_scaling = 1.0;
     double MAX_DELTA_U = 1000.0;
     double last_u = 0.0;
-    double ki = 0, kd = 0, Isum = 0;
+    double ki = 0.4, kd = 0, Isum = 0;
 
     // set up the external interrupt
 
@@ -548,7 +549,10 @@ int main(void) {
 //        error_in[0] = error;
 //        filter(Ac, Bc, error_in, u_out, Nu);
 //        u = u_out[0];
-        u = kp * error;
+        Isum = Isum + error;
+        Isum = max(0.0, Isum);
+        Isum = min(MAX_ISUM, Isum);
+        u = kp * error + ki * Isum;
 
         /*********************************************/
         // implement CONYTROl EFFORT CONVERSION
@@ -591,7 +595,7 @@ int main(void) {
             int_Y = (int) 100*Y;
             int_u = (int) u;
 
-            printf("%8d %8d %8d %8d\n", int_time, int_R, int_u, int_Y);
+            printf("%8d %8d %8d %8d %8d\n", int_time, int_R, int_u, int_Y, (int) Isum);
             count = MAX_COUNT;
         }   
         // save the current positions
