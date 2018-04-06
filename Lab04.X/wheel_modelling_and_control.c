@@ -35,7 +35,7 @@
 #define MAX_COUNT 1
 #define PI 3.14159265
 #define MAXCNT 719  // maximum count for QEI encoders before interrupt, 720 counts per revolution
-#define MAX_ISUM 180
+#define MAX_ISUM 1300
 
 // define some variables
 
@@ -378,11 +378,11 @@ int main(void) {
     double u_out[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
     int Nr = 5, Ny = 5, Nu = 5;
     double AD_scale = 0.1688;
-    double kp = 0.0;
+    double kp = 1.14;
     double reference_scaling = 1.0;
     double MAX_DELTA_U = 1000.0;
     double last_u = 0.0;
-    double ki = 0.4, kd = 0, Isum = 0;
+    double ki = 0.05555, kd = 0, Isum = 0;
 
     // set up the external interrupt
 
@@ -498,7 +498,7 @@ int main(void) {
 //        else if (time >= 10.5) R = 40.0;
 //        R = 75.0;
         R = R * reference_scaling;
-        R = 75;
+//        R = 75;
 
         /*********************************************/
         //  implement the FEEDBACK (H) functions
