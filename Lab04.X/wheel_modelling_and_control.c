@@ -378,11 +378,12 @@ int main(void) {
     double u_out[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
     int Nr = 5, Ny = 5, Nu = 5;
     double AD_scale = 0.1688;
-    double kp = 1.14;
-    double reference_scaling = 1.0;
+    double kp = 2.5244;
+    double reference_scaling = 1.4012546;
     double MAX_DELTA_U = 1000.0;
     double last_u = 0.0;
-    double ki = 0.05555, kd = 0, Isum = 0;
+    double ki = 0, kd = -1.2622, Isum = 0;
+    double Derror = 0, last_error = 0;
 
     // set up the external interrupt
 
@@ -496,9 +497,8 @@ int main(void) {
 //        else if ((time >= 0.5) & (time < 5.5)) R = 10.0;
 //        else if ((time >= 5.5) & (time < 10.5)) R = 25.0;
 //        else if (time >= 10.5) R = 40.0;
-//        R = 75.0;
-        R = R * reference_scaling;
 //        R = 75;
+        R = R * reference_scaling;
 
         /*********************************************/
         //  implement the FEEDBACK (H) functions
@@ -549,10 +549,12 @@ int main(void) {
 //        error_in[0] = error;
 //        filter(Ac, Bc, error_in, u_out, Nu);
 //        u = u_out[0];
+        Derror = error-last_error;
+        last_error = error;
         Isum = Isum + error;
         Isum = max(0.0, Isum);
         Isum = min(MAX_ISUM, Isum);
-        u = kp * error + ki * Isum;
+        u = kp * error + ki * Isum + kd * Derror;
 
         /*********************************************/
         // implement CONYTROl EFFORT CONVERSION
